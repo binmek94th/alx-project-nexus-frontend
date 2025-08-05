@@ -1,20 +1,63 @@
-import {baseApi, type Payload} from "../../services/api.ts";
+import {baseApi} from "../../services/api.ts";
+import type {Profile} from "../follow/hooks/useProfile.ts";
 
 export interface Post {
     id: number;
     caption: string;
     image: string;
-    created_at?: string;
-    updated_at?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    likeCount: number;
+    commentCount: number;
+    viewCount: number;
+    author: Profile;
 }
 
 export const postApi = baseApi.injectEndpoints({
+
     endpoints: (build) => ({
-        getPosts: build.query<Payload<Post>, {cursor?: string}>({
+        getPosts: build.query({
             query: ({ cursor }) => ({
-                url: `post/posts/${cursor}`,
-                params: cursor ? { cursor } : {},
+                url: 'graphql/',
+                method: 'POST',
+                body: {
+                    query: `
+        query AllPosts($after: String) {
+          allPosts(first: 10, after: $after) {
+            edges {
+              node {
+                id
+                caption
+                image
+                createdAt
+                likeCount
+                commentCount
+                viewCount
+                author {
+                  id
+                  username
+                  fullName
+                }
+              }
+              cursor
+            }
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
+          }
+        }
+      `,
+                    variables: { after: cursor }
+                }
             }),
+            transformResponse: (response) => {
+                const edges = response.data.allPosts.edges;
+                return {
+                    results: edges.map((edge: any) => edge.node),
+                    nextCursor: response.data.allPosts.pageInfo.hasNextPage ? response.data.allPosts.pageInfo.endCursor : null
+                };
+            }
         }),
 
         getPost: build.query<Post, number>({

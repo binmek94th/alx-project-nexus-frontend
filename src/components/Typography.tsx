@@ -10,7 +10,7 @@ const Typography = ({className, children, variant}: Props) => {
     if (!variant) variant = 'p'
     const variants = {
         h1: "text-2xl font-bold text-[var(--text-primary)]",
-        h2: "text-2xl text-[var(--text-primary)]",
+        h2: "text-2xl text-[var(--primary-text)]",
         h3: "text-base font-bold text-[var(--text-tertiary)]",
         h4: "text-1xl font-bold text-[var(--text-primary)]",
         h5: "text-base text-[var(--text-tertiary)] font-normal",

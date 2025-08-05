@@ -16,8 +16,8 @@ const baseQueryWithErrorHandling: BaseQueryFn<
 > = async (args, api, extraOptions) => {
     const rawBaseQuery = fetchBaseQuery({
         baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/',
-        prepareHeaders: (headers, { getState }) => {
-            prepareHeaders(headers, getState)
+        prepareHeaders: (headers) => {
+            prepareHeaders(headers)
         }
     });
 
@@ -37,8 +37,8 @@ export const baseApi = createApi({
 });
 
 
-export const prepareHeaders = (headers: any, getState: any) => {
-    const token = (getState() as any)?.auth?.token;
+export const prepareHeaders = (headers: any) => {
+    const token = localStorage.getItem('access_token')
     if (token)
         headers.set('Authorization', `Bearer ${token}`);
 

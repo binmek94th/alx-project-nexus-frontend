@@ -12,6 +12,9 @@ export const handleError = (result: any) => {
             navigateTo('/not-found');
             return result;
         }
+        if (result.error.status === 401){
+            navigateTo('/login')
+        }
         if (result.error.status === 403) {
             if (result.error.data?.detail === "Token has expired.") {
                 showToast("error", "Login Expired redirecting to login in 5 seconds.");
@@ -21,7 +24,5 @@ export const handleError = (result: any) => {
             navigateTo('/forbidden');
             return result;
         }
-        const message = getErrorMessage(result.error);
-        showToast('error', message);
     }
 }

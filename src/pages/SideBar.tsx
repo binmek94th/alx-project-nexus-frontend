@@ -22,7 +22,7 @@ const SideBar = () => {
 
     return (
         <>
-            <div className="hidden lg:flex fixed top-0 left-0 h-full w-64 bg-[var(--paper)] border-r border-[var(--primary)] flex-col p-4 space-y-6">
+            <div className="hidden lg:flex fixed top-15 left-0 h-full w-64 bg-[var(--paper)] border-r border-[var(--primary)] flex-col p-4 space-y-6">
                 {navItems.map((item) => {
                     const active = location.pathname === item.path;
                     const Icon = item.icon;

@@ -4,8 +4,8 @@ import './index.css'
 import App from './App.tsx'
 import { Provider } from 'react-redux'
 import { store } from './store/store.ts'
-import {client} from "./services/graphql.ts";
 import {ApolloProvider} from "@apollo/client";
+import {client} from "./apollo/client.ts";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

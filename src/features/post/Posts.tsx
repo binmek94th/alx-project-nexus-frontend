@@ -2,7 +2,7 @@ import PostList from "../../components/PostList.tsx";
 
 const PostsPage = () => {
     return (
-        <div className="max-w-6xl mx-auto mt-8">
+        <div className="ml-10 w-150 mt-8">
             <PostList />
         </div>
     );
