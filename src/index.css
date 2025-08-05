@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@layer base {
+    :root {
+        --background: #020202;
+        --paper-custom: #1b1b1b;
+        --primary-text: #e1e1e1;
+        --text-secondary: #8a919a;
+        --text-tertiary: #c4c9cf;
+        --primary: #1b3357;
+        --primary-hover: #2b4f93;
+        --error: #EF4444;
+        --error-bg: #FEE2E2;
+    }
+}
+
+body {
+    background-color: var(--background);
+}
