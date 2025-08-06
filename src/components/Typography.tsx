@@ -4,9 +4,10 @@ interface Props {
     className?: string
     children?: React.ReactNode
     variant?: 'h1' | 'h2' | 'h3' | 'p' | 'label' | 'error' | 'non' | 'h5' | 'h4'
+    onClick?: () => void
 }
 
-const Typography = ({className, children, variant}: Props) => {
+const Typography = ({className, children, variant, onClick}: Props) => {
     if (!variant) variant = 'p'
     const variants = {
         h1: "text-2xl font-bold text-[var(--text-primary)]",
@@ -20,7 +21,7 @@ const Typography = ({className, children, variant}: Props) => {
         non: ''
     };
     return (
-        <div className={cn(variants[variant], className, " ")}>{children}</div>
+        <div onClick={onClick} className={cn(variants[variant], className, " ")}>{children}</div>
     )
 }
 export default Typography

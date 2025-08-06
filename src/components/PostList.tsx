@@ -1,16 +1,36 @@
 import { useState, useEffect, useCallback } from "react";
-import { ImageOff, Heart, MessageCircle } from "lucide-react";
-import { type Post, useGetPostsQuery } from "../features/post/api.ts";
+import {ImageOff, Heart, MessageCircle, HeartIcon} from "lucide-react";
+import {
+    type Post,
+    useGetPostsQuery,
+    useLikePostMutation,
+    useUnLikePostMutation
+} from "../features/post/api.ts";
 import ProfilePicture from "./ProfilePicture.tsx";
 import Typography from "./Typography.tsx";
 import {formatRelativeTime} from "../utils/date.ts";
+import PrimaryButton from "./PrimaryButton.tsx";
+import {decodeGlobalId} from "../utils/graphql.ts";
+import {toast} from "sonner";
+import {useFollowUserMutation} from "../features/follow/api.ts";
+import LineTextField from "./LineTextField.tsx";
+import DialogBox from "./DialogBox.tsx";
+import {useAddCommentMutation} from "../features/comment/api.ts";
+import CommentList from "../features/comment/CommentList.tsx";
+import Profile from "../features/follow/Profile.tsx";
 
 const PostList = () => {
     const [posts, setPosts] = useState<Post[]>([]);
+    const [followUser] = useFollowUserMutation();
     const [cursor, setCursor] = useState<string | null>(null);
     const { data, isLoading, isFetching, isError } = useGetPostsQuery({ cursor });
-
+    const [likePost] = useLikePostMutation();
+    const [unLikePost] = useUnLikePostMutation()
+    const [addComment] = useAddCommentMutation();
     const [loadingMore, setLoadingMore] = useState(false);
+    const [commentData, setCommentData] = useState<{post: string, comment?: string, content: string} | null>(null)
+    const [post, setPost] = useState<string | null>(null);
+    const [profileId, setProfileId] = useState<string | null>(null);
 
     useEffect(() => {
         if (data?.results) {
@@ -35,6 +55,35 @@ const PostList = () => {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, [handleScroll]);
+
+    const handleFollow = async (id: string) => {
+        const decoded_id = decodeGlobalId(id);
+        try {
+            const result = await followUser(decoded_id);
+
+            if ('error' in result) {
+                if ('error' in result) {
+                    const err = result.error;
+                    if (err && 'data' in err && typeof err.data === 'object')
+                        toast.error("Follow failed: " + (err.data as any)[0]);
+                    else toast.error("Follow failed: Unknown error");
+                }
+            } else {
+                const post = posts.find((p) => p.id === id)
+                if (post) {
+                    setPosts((prevPosts) =>
+                        prevPosts.map(p =>
+                            p.id === post.id ? { ...post, isFollowingAuthor: true } : p
+                        )
+                    );
+                    toast.success(`You are now following ${post?.author?.username}`);
+                }
+            }
+        } catch (err: any) {
+            console.error("Unexpected error:", err);
+            toast.error("Something went wrong!");
+        }
+    };
 
     if (isLoading && posts.length === 0) {
         return (
@@ -97,6 +146,68 @@ const PostList = () => {
         );
     }
 
+    const handleLike = async (id: string) => {
+        const result = await likePost(decodeGlobalId(id))
+        if ('error' in result)
+            return
+        const post = posts.find((p) => p.id === id)
+        if (post) {
+            setPosts((prevPosts) =>
+                prevPosts.map((p) =>
+                    p.id === post.id
+                        ? { ...post, liked: true, likeCount: post.likeCount + 1 }
+                        : p
+                )
+            );
+        }
+    }
+
+    const handleUnLike =async (id: string) => {
+        const result = await unLikePost(decodeGlobalId(id))
+        if ('error' in result)
+            return
+        const post = posts.find((p) => p.id === id)
+        if (post) {
+            setPosts((prevPosts) =>
+                prevPosts.map((p) =>
+                    p.id === post.id
+                        ? { ...post, liked: false, likeCount: post.likeCount - 1 }
+                        : p
+                )
+            );
+        }
+    }
+
+    const handleComment = async () => {
+        if (!commentData) return;
+
+        const res = await addComment({
+            id: decodeGlobalId(commentData.post),
+            content: commentData.content,
+            comment: commentData.comment && decodeGlobalId(commentData.comment),
+        });
+
+        if (res.error) {
+            console.error(res.error);
+            return;
+        } else
+            toast.success("Comment Saved.");
+
+        const post = posts.find((p) => p.id === commentData.post);
+        if (post) {
+            setPosts((prevPosts) =>
+                prevPosts.map((p) =>
+                    p.id === post.id
+                        ? { ...post, commentCount: post.commentCount + 1 }
+                        : p
+                )
+            );
+        }
+        setCommentData(null);
+    };
+
+
+
     return (
         <div style={{ backgroundColor: "var(--primary-bg)", minHeight: "100vh" }}>
             <div
@@ -131,19 +242,26 @@ const PostList = () => {
                             }}
                         >
                             <div className="flex items-center justify-between p-4 pb-3">
-                                <div className="flex items-center space-x-3">
-
-                                   <ProfilePicture className={'ml-[-15px]'} src={post.author.profilePicture}></ProfilePicture>
-                                    <div className={'flex gap-3 items-center '}>
-                                        <Typography variant={'h3'}>{post.author.username} </Typography>
-                                        <p
-                                            className="text-xs"
-                                            style={{ color: "var(--text-tertiary)" }}
-                                        >
-                                            {post.createdAt
-                                                ? formatRelativeTime(new Date(post.createdAt).toLocaleDateString())
-                                                : "Recently"}
-                                        </p>
+                                <div className={'flex w-full justify-between'}>
+                                    <div onClick={()=> setProfileId(post.author.id)} className="flex items-center space-x-3">
+                                       <ProfilePicture  className={'ml-[-15px]'} src={post.author.profilePicture}></ProfilePicture>
+                                        <div className={'flex gap-3 items-center '}>
+                                            <Typography variant={'h3'}>{post.author.username} </Typography>
+                                            <p
+                                                className="text-xs"
+                                                style={{ color: "var(--text-tertiary)" }}
+                                            >
+                                                {post.createdAt
+                                                    ? formatRelativeTime(new Date(post.createdAt).toLocaleDateString())
+                                                    : "Recently"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        { post.isFollowingAuthor ?
+                                            <PrimaryButton>Unfollow</PrimaryButton> :
+                                            <PrimaryButton onClick={() => handleFollow(post.author.id)}>Follow</PrimaryButton>
+                                        }
                                     </div>
                                 </div>
                                 <button
@@ -189,26 +307,25 @@ const PostList = () => {
                                     <div className="flex items-center justify-between mb-3">
                                         <div className="flex items-center space-x-4">
                                             <button className="flex items-center space-x-2 group">
-                                                <div
-                                                    className="p-2 flex gap-4 rounded-full transition-colors duration-200 group-hover:bg-red-50"
-                                                >
+                                                <div className="p-2 flex gap-4 rounded-full transition-colors duration-200">
                                                     <Typography>{post.likeCount || 0}</Typography>
-                                                    <Heart
-                                                        className="w-6 h-6 transition-colors duration-200"
-                                                        style={{
-                                                            color: "var(--text-tertiary)",
-                                                        }}
-                                                    />
+                                                    {post.liked ?
+                                                        <HeartIcon onClick={() => handleUnLike(post.id)} className={'w-6 h-6 cursor-pointer text-red-500 fill-red-500 transition-colors duration-200'} /> :
+                                                        <Heart onClick={()=> handleLike(post.id)}
+                                                            className="w-6 h-6 transition-colors duration-200 text-[var(--text-tertiary)] hover:text-red-500 cursor-pointer"
+                                                        />
+                                                    }
                                                 </div>
                                             </button>
                                             <button className="flex items-center space-x-2 group">
                                                 <div
-                                                    className="p-2 flex gap-4 rounded-full transition-colors duration-200 group-hover:bg-blue-50"
+                                                    onClick={() => setPost(post.id)}
+                                                    className="p-2 flex gap-4 rounded-full transition-colors hover:bg-[var(--paper-custom)] duration-200 "
                                                 >
                                                     <Typography>{post.commentCount || 0}</Typography>
 
                                                     <MessageCircle
-                                                        className="w-6 h-6 transition-colors duration-200"
+                                                        className="w-6 h-6 "
                                                         style={{
                                                             color: "var(--text-tertiary)",
                                                         }}
@@ -241,13 +358,41 @@ const PostList = () => {
                                             </p>
                                         </div>
                                     )}
+                                    {commentData ?
+                                        <div className="flex w-full align-center gap-2">
+                                            <LineTextField className={'w-full'}
+                                                handleChange={(value: string) =>
+                                                    setCommentData(prev =>
+                                                        prev ? { ...prev, content: value } : { post: post.id, content: value }
+                                                    )
+                                                }
+                                            />
+                                            <PrimaryButton onClick={handleComment} className={'h-10 w-20 mt-4'}>Comment</PrimaryButton>
+                                        </div>
+                                            :
+                                        <Typography className="hover:underline cursor-pointer" onClick={()=> setCommentData({ content: '', post: post.id})} variant={'label'}>add a comment</Typography>
+                                    }
                                 </div>
                             </div>
                         </article>
                     ))}
                 </div>
+                {post &&
+                    <div className={'w-100'}>
+                        <DialogBox style={{ width: "400px" }} title={'Comment'} onClose={() => setPost(null)}>
+                            <CommentList post={decodeGlobalId(post)}></CommentList>
+                        </DialogBox>
+                    </div>
+                }
 
-                {/* Loading More Indicator */}
+                {profileId &&
+                    <div className={'w-50'}>
+                        <DialogBox style={{ width: "600px" }} title={"Profile"} onClose={() => setProfileId('')}>
+                            <Profile id={profileId}></Profile>
+                        </DialogBox>
+                    </div>
+                }
+
                 {(isFetching || loadingMore) && (
                     <div className="flex justify-center py-8">
                         <div

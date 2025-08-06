@@ -1,13 +1,16 @@
 import React, { useRef } from "react";
 import Typography from "./Typography.tsx";
+import { cn } from "../utils/utils.ts"; // if you're using `cn()` helper
 
 interface Props {
     title: string;
     children: React.ReactNode;
     onClose: () => void;
+    className?: string;
+    style?: React.CSSProperties;
 }
 
-const DialogBox = ({ title, children, onClose }: Props) => {
+const DialogBox = ({ title, children, onClose, className, style }: Props) => {
     const dialogRef = useRef<HTMLDivElement>(null);
 
     const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -35,6 +38,7 @@ const DialogBox = ({ title, children, onClose }: Props) => {
         >
             <div
                 ref={dialogRef}
+                className={cn("w-full max-w-[90vw]", className)}
                 style={{
                     backgroundColor: "var(--paper-custom)",
                     color: "var(--primary-text)",
@@ -46,6 +50,7 @@ const DialogBox = ({ title, children, onClose }: Props) => {
                     textAlign: "center",
                     maxHeight: "90vh",
                     overflowY: "auto",
+                    ...style, // allow parent override
                 }}
             >
                 <Typography variant="h2">

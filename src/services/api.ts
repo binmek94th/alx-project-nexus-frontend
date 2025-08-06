@@ -17,7 +17,7 @@ const baseQueryWithErrorHandling: BaseQueryFn<
     const rawBaseQuery = fetchBaseQuery({
         baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/',
         prepareHeaders: (headers) => {
-            prepareHeaders(headers)
+            return prepareHeaders(headers)
         }
     });
 
@@ -32,7 +32,7 @@ const baseQueryWithErrorHandling: BaseQueryFn<
 export const baseApi = createApi({
     reducerPath: 'api',
     baseQuery: baseQueryWithErrorHandling,
-    tagTypes: ['Post'],
+    tagTypes: ['Post', 'Comment'],
     endpoints: () => ({}),
 });
 
@@ -40,7 +40,7 @@ export const baseApi = createApi({
 export const prepareHeaders = (headers: any) => {
     const token = localStorage.getItem('access_token')
     if (token)
-        headers.set('Authorization', `Bearer ${token}`);
+        headers.set('Authorization', `JWT ${token}`);
 
     return headers;
 }

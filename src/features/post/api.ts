@@ -2,7 +2,7 @@ import {baseApi} from "../../services/api.ts";
 import type {Profile} from "../follow/hooks/useProfile.ts";
 
 export interface Post {
-    id: number;
+    id: string;
     caption: string;
     image: string;
     createdAt?: string;
@@ -11,6 +11,14 @@ export interface Post {
     commentCount: number;
     viewCount: number;
     author: Profile;
+    isFollowingAuthor: boolean;
+    liked: boolean;
+}
+
+interface Comment {
+    id: string;
+    user: string;
+    post: string;
 }
 
 export const postApi = baseApi.injectEndpoints({
@@ -61,13 +69,13 @@ export const postApi = baseApi.injectEndpoints({
         }),
 
         getPost: build.query<Post, number>({
-            query: (id) => `posts/${id}/`,
+            query: (id) => `api/posts/${id}/`,
             providesTags: (_result, _err, id) => [{ type: 'Post', id }],
         }),
 
         createPost: build.mutation<Post, FormData>({
             query: (formData) => ({
-                url: 'post/posts',
+                url: 'api/post/posts',
                 method: 'POST',
                 body: formData,
             }),
@@ -76,19 +84,47 @@ export const postApi = baseApi.injectEndpoints({
 
         updatePost: build.mutation<Post, { id: number; formData: FormData }>({
             query: ({ id, formData }) => ({
-                url: `post/posts/${id}/`,
+                url: `api/post/posts/${id}/`,
                 method: 'PUT',
                 body: formData,
             }),
             invalidatesTags: (_result, _err, { id }) => [{ type: 'Post', id }],
         }),
 
-        deletePost: build.mutation<{ success: boolean }, number>({
+        deletePost: build.mutation<{ success: boolean }, string>({
             query: (id) => ({
-                url: `post/posts/${id}/`,
+                url: `api/post/posts/${id}/`,
                 method: 'DELETE',
             }),
             invalidatesTags: ['Post'],
+        }),
+
+        likePost:build.mutation<{success: boolean}, string>({
+            query: (id) => ({
+                url: `api/post/likes/`,
+                method: 'POST',
+                body: {post: id}
+            })
+        }),
+
+        unLikePost:build.mutation<{success: boolean}, string>({
+            query: (id) => ({
+                url: `api/post/likes/`,
+                method: 'POST',
+                body: {post: id}
+            })
+        }),
+
+        addComment: build.mutation<{ comment: Comment }, { content: string; id: string, comment?: string; }>({
+            query: ({ content, comment, id }) => ({
+                url: 'api/post/comments/',
+                method: 'POST',
+                body: {
+                    post: id,
+                    comment: comment,
+                    content: content,
+                },
+            }),
         }),
     }),
     overrideExisting: false,
@@ -100,4 +136,7 @@ export const {
     useCreatePostMutation,
     useUpdatePostMutation,
     useDeletePostMutation,
+    useLikePostMutation,
+    useAddCommentMutation,
+    useUnLikePostMutation,
 } = postApi;
