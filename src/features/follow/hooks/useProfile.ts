@@ -12,7 +12,7 @@ export interface Profile {
     postCount: number;
 }
 
-export const useProfile = (id: string) => {
+export const useProfile = (id?: string) => {
     const { data, loading, error } = useQuery(GET_PROFILE, {
         variables: { id },
         skip: !id,

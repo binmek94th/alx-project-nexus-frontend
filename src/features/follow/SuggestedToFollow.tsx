@@ -9,7 +9,7 @@ import Spinner from "../../components/Spinner.tsx";
 import {useState} from "react";
 import PrimaryButton from "../../components/PrimaryButton.tsx";
 import DialogBox from "../../components/DialogBox.tsx";
-import Profile from "./Profile.tsx";
+import Profile from "../profile/Profile.tsx";
 import {useNavigate} from "react-router-dom";
 
 

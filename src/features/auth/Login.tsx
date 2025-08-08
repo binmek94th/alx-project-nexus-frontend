@@ -5,12 +5,17 @@ import {type LoginFormData, loginSchema} from "./schema.ts";
 import TextField from "../../components/TextField.tsx";
 import SecondaryAddButtonWithLoading from "../../components/SecondaryAddButtonWithLoading.tsx";
 import Typography from "../../components/Typography.tsx";
-import {Link} from "react-router-dom";
+import {Link, useNavigate, useSearchParams} from "react-router-dom";
 import {toast} from "sonner";
 import {useState} from "react";
+import {useLazyGetUserQuery} from "../user/api.ts";
 
 const LoginForm = () => {
     const [login, { isLoading }] = useLoginMutation();
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const isNewUser = searchParams.get("new_user") === "true";
+    const [triggerGetUser] = useLazyGetUserQuery();
     const [showResetDialog, setShowResetDialog] = useState(false);
     const [resetEmail, setResetEmail] = useState("");
     const [resetPassword, {isLoading: passwordLoading}] = useResetPasswordMutation()
@@ -31,7 +36,12 @@ const LoginForm = () => {
             localStorage.setItem("access_token", res.access);
             localStorage.setItem("refresh_token", res.refresh);
             reset();
+            const userResponse = await triggerGetUser().unwrap();
+            localStorage.setItem("user", JSON.stringify(userResponse));
             toast.success("Login successfully");
+            if (isNewUser) navigate("/suggested_to_follow")
+            else navigate("/")
+
         } catch (err: any) {
             setError("root", {
                 type: "server",

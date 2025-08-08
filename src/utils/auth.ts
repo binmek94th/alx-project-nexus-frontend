@@ -1,6 +1,5 @@
 import {navigateTo} from "./router.ts";
 import { showToast } from "./toastUtils.tsx";
-import getErrorMessage from "./error.ts";
 
 export const handleError = (result: any) => {
     if (result.error) {

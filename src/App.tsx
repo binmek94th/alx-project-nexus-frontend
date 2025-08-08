@@ -1,4 +1,4 @@
-import { Routes, Route, BrowserRouter } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import LoginForm from "./features/auth/Login.tsx";
 import SignupForm from "./features/auth/Signup.tsx";
 import VerifyEmail from "./features/auth/VerifyEmail.tsx";
@@ -8,10 +8,25 @@ import Dashboard from "./pages/Dashboard.tsx";
 import ChangePassword from "./features/auth/ChangePassword.tsx";
 import UserToFollowForNewUser from "./pages/UserToFollowForNewUser.tsx";
 import HomePage from "./pages/HomePage.tsx";
+import Profile from "./features/profile/Profile.tsx";
+import Notification from "./features/notification/Notification.tsx";
+import {setNavigate} from "./utils/router.ts";
+import {useEffect} from "react";
+import {checkLogin} from "./utils/checkLogin.ts";
 
 const App = () => {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        setNavigate(navigate);
+    }, [navigate]);
+
+    useEffect(() => {
+        checkLogin()
+    }, []);
+
     return (
-        <BrowserRouter>
+        <div>
             <Toaster position="top-right" />
             <Routes>
                 <Route path="/login" element={<LoginForm />} />
@@ -22,9 +37,11 @@ const App = () => {
                 <Route path={'/suggested_to_follow'} element={<UserToFollowForNewUser />} />
                 <Route path={'/'} element={<Dashboard />}>
                     <Route path={'/'} element={<HomePage />} />
+                    <Route path={'/profile'} element={<Profile />}></Route>
+                    <Route path={'/notifications'} element={<Notification />}></Route>
                 </Route>
             </Routes>
-        </BrowserRouter>
+        </div>
     );
 };
 

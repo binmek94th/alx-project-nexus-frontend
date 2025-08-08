@@ -47,7 +47,7 @@ const PostGrid = ({posts}: Props) => {
                             {post.image ? (
                                 <div className="relative w-full h-full">
                                     <img
-                                        src={post.image}
+                                        src={`${import.meta.env.VITE_API_URL}image/${post.image}`}
                                         alt={`Post ${post.id}`}
                                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                         loading="lazy"

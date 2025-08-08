@@ -17,7 +17,7 @@ import LineTextField from "./LineTextField.tsx";
 import DialogBox from "./DialogBox.tsx";
 import {useAddCommentMutation} from "../features/comment/api.ts";
 import CommentList from "../features/comment/CommentList.tsx";
-import Profile from "../features/follow/Profile.tsx";
+import Profile from "../features/profile/Profile.tsx";
 
 const PostList = () => {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -34,10 +34,15 @@ const PostList = () => {
 
     useEffect(() => {
         if (data?.results) {
-            setPosts((prevPosts) => [...prevPosts, ...data.results]);
+            setPosts((prevPosts) => {
+                const existingIds = new Set(prevPosts.map((p) => p.id));
+                const newPosts = data.results.filter((post: any) => !existingIds.has(post.id));
+                return [...prevPosts, ...newPosts];
+            });
             setLoadingMore(false);
         }
     }, [data]);
+
 
     const handleScroll = useCallback(() => {
         if (loadingMore || isFetching || !data?.nextCursor) return;
@@ -209,7 +214,7 @@ const PostList = () => {
 
 
     return (
-        <div style={{ backgroundColor: "var(--primary-bg)", minHeight: "100vh" }}>
+        <div style={{ backgroundColor: "var(--primary-bg)", maxWidth: "90vw", minHeight: "100vh" }}>
             <div
                 className="sticky top-0 z-10 border-b"
                 style={{
@@ -228,7 +233,7 @@ const PostList = () => {
                 </div>
             </div>
 
-            <div className="max-w-lg  mx-auto px-4 py-6">
+            <div className="max-w-lg px-2 sm:mx-auto sm:px-4 py-6">
                 <div className="space-y-6">
                     {posts.map((post, index) => (
                         <article

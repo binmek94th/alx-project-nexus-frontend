@@ -24,7 +24,7 @@ const VerifyEmailPage = () => {
                 const message =
                     error?.data?.error || error?.data?.message || "Verification failed.";
                 toast.error(message);
-                navigate("/login");
+                navigate("/login?new_user=true");
             }
         };
 

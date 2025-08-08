@@ -40,7 +40,7 @@ export const baseApi = createApi({
 export const prepareHeaders = (headers: any) => {
     const token = localStorage.getItem('access_token')
     if (token)
-        headers.set('Authorization', `JWT ${token}`);
+        headers.set('Authorization', `Bearer ${token}`);
 
     return headers;
 }
