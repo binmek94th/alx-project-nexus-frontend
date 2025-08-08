@@ -1,4 +1,4 @@
-import { cn } from "../../../../../ZNAR_project/admin_frontend/admin-frontend/src/lib/utils.ts";
+import {cn} from "../utils/utils.ts";
 
 interface Props {
     onClick?: () => void;
