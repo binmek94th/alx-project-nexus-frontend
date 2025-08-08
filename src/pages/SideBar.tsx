@@ -14,6 +14,7 @@ const navItems = [
     { name: "Create", icon: PlusSquare, path: "/create" },
     { name: "Notifications", icon: Bell, path: "/notifications" },
     { name: "Profile", icon: User, path: "/profile" },
+    { name: "Account", icon: User, path: "/account" },
 ];
 
 const SideBar = () => {

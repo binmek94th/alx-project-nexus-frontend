@@ -1,3 +1,5 @@
+import {useEffect, useState} from "react";
+
 interface ProfilePictureProps {
     src?: string | null;
     alt?: string;
@@ -11,6 +13,18 @@ const ProfilePicture = ({
                             size = 48,
                             className = "",
                         }: ProfilePictureProps) => {
+    const [url, setUrl] = useState("")
+
+    useEffect(() => {
+        if (src) {
+            if (src.startsWith("http://") || src.startsWith("https://")) {
+                setUrl(src);
+            } else {
+                setUrl(`${import.meta.env.VITE_API_URL}image/${src}`);
+            }
+        }
+    }, [src]);
+
     return (
         <div
             className={`relative rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-gray-500 ${className}`}
@@ -18,7 +32,7 @@ const ProfilePicture = ({
         >
             {src ? (
                 <img
-                    src={`${import.meta.env.VITE_API_URL}/image/${src}`}
+                    src={url}
                     alt={alt}
                     className="w-full h-full object-cover"
                     loading="lazy"

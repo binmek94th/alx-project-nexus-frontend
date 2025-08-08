@@ -39,6 +39,7 @@ export const postApi = baseApi.injectEndpoints({
                   id
                   username
                   fullName
+                  profilePicture
                 }
               }
               cursor

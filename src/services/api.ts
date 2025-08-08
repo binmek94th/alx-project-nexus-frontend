@@ -32,7 +32,7 @@ const baseQueryWithErrorHandling: BaseQueryFn<
 export const baseApi = createApi({
     reducerPath: 'api',
     baseQuery: baseQueryWithErrorHandling,
-    tagTypes: ['Post', 'Comment','Story'],
+    tagTypes: ['Post', 'Comment', 'Story', 'User'],
     endpoints: () => ({}),
 });
 

@@ -4,11 +4,13 @@ export interface AuthState {
 }
 
 export interface User {
+    id: string;
     email: string | null;
     username: string | null;
     full_name: string | null;
     bio?: string | null;
     profile_picture?: string | null;
+    privacy_choice: "private" | "public";
 }
 
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";

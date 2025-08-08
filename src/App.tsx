@@ -17,6 +17,7 @@ import Search from "./features/search/Search.tsx";
 import Create from "./features/post/Create.tsx";
 import NetworkError from "./pages/NetworkError.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Account from "./pages/Account.tsx";
 
 const App = () => {
     const navigate = useNavigate();
@@ -44,6 +45,7 @@ const App = () => {
                 <Route path={'/'} element={<Dashboard />}>
                     <Route path={'/'} element={<HomePage />} />
                     <Route path={'/profile'} element={<Profile />}></Route>
+                    <Route path={'/account'} element={<Account />}></Route>
                     <Route path={'/notifications'} element={<Notification />}></Route>
                     <Route path={'/search'} element={<Search />}></Route>
                     <Route path={'/create'} element={<Create />}></Route>
