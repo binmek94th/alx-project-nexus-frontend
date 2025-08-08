@@ -13,6 +13,10 @@ import Notification from "./features/notification/Notification.tsx";
 import {setNavigate} from "./utils/router.ts";
 import {useEffect} from "react";
 import {checkLogin} from "./utils/checkLogin.ts";
+import Search from "./features/search/Search.tsx";
+import Create from "./features/post/Create.tsx";
+import NetworkError from "./pages/NetworkError.tsx";
+import NotFound from "./pages/NotFound.tsx";
 
 const App = () => {
     const navigate = useNavigate();
@@ -29,6 +33,8 @@ const App = () => {
         <div>
             <Toaster position="top-right" />
             <Routes>
+                <Route path="/network-error" element={<NetworkError />} />
+                <Route path="/not-found" element={<NotFound />} />
                 <Route path="/login" element={<LoginForm />} />
                 <Route path="/signup" element={<SignupForm />} />
                 <Route path={'/verify_email'} element={<VerifyEmail />} />
@@ -39,6 +45,8 @@ const App = () => {
                     <Route path={'/'} element={<HomePage />} />
                     <Route path={'/profile'} element={<Profile />}></Route>
                     <Route path={'/notifications'} element={<Notification />}></Route>
+                    <Route path={'/search'} element={<Search />}></Route>
+                    <Route path={'/create'} element={<Create />}></Route>
                 </Route>
             </Routes>
         </div>

@@ -1,4 +1,4 @@
-import {baseApi} from "../../services/api.ts";
+import {baseApi, type Payload} from "../../services/api.ts";
 import type {Profile} from "../follow/hooks/useProfile.ts";
 
 export interface Post {
@@ -13,12 +13,6 @@ export interface Post {
     author: Profile;
     isFollowingAuthor: boolean;
     liked: boolean;
-}
-
-interface Comment {
-    id: string;
-    user: string;
-    post: string;
 }
 
 export const postApi = baseApi.injectEndpoints({
@@ -73,26 +67,31 @@ export const postApi = baseApi.injectEndpoints({
             providesTags: (_result, _err, id) => [{ type: 'Post', id }],
         }),
 
-        createPost: build.mutation<Post, FormData>({
-            query: (formData) => ({
-                url: 'api/post/posts',
-                method: 'POST',
-                body: formData,
-            }),
+        createPost: build.mutation<Post, { image: File, caption: string }>({
+            query: ({ image, caption }) => {
+                const formData = new FormData();
+                formData.append("image", image);
+                formData.append("caption", caption);
+                return {
+                    url: "api/post/stories/",
+                    method: "POST",
+                    body: formData,
+                };
+            },
             invalidatesTags: ['Post'],
         }),
 
-        updatePost: build.mutation<Post, { id: number; formData: FormData }>({
-            query: ({ id, formData }) => ({
+        updatePost: build.mutation<Post, { id: string; caption: string }>({
+            query: ({ id, caption }) => ({
                 url: `api/post/posts/${id}/`,
                 method: 'PUT',
-                body: formData,
+                body: {caption},
             }),
             invalidatesTags: (_result, _err, { id }) => [{ type: 'Post', id }],
         }),
 
-        deletePost: build.mutation<{ success: boolean }, string>({
-            query: (id) => ({
+        deletePost: build.mutation<{ success: boolean }, { id: string }>({
+            query: ({ id }) => ({
                 url: `api/post/posts/${id}/`,
                 method: 'DELETE',
             }),
@@ -115,28 +114,24 @@ export const postApi = baseApi.injectEndpoints({
             })
         }),
 
-        addComment: build.mutation<{ comment: Comment }, { content: string; id: string, comment?: string; }>({
-            query: ({ content, comment, id }) => ({
-                url: 'api/post/comments/',
-                method: 'POST',
-                body: {
-                    post: id,
-                    comment: comment,
-                    content: content,
-                },
-            }),
-        }),
+        search: build.query<Payload<Post>, { search_string: string }>({
+            query: ({search_string}) => ({
+                url: `api/post/posts?search=${encodeURIComponent(search_string)}`,
+                method: 'GET'
+            })
+        })
+
     }),
     overrideExisting: false,
 });
 
 export const {
     useGetPostsQuery,
+    useLazySearchQuery,
     useGetPostQuery,
     useCreatePostMutation,
     useUpdatePostMutation,
     useDeletePostMutation,
     useLikePostMutation,
-    useAddCommentMutation,
     useUnLikePostMutation,
 } = postApi;

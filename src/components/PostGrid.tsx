@@ -9,6 +9,7 @@ interface Props {
 const PostGrid = ({posts}: Props) => {
 
     const formatViewCount = (count: number) => {
+        if (!count) return
         if (count >= 1000000) {
             return `${(count / 1000000).toFixed(1)}M`;
         } else if (count >= 1000) {

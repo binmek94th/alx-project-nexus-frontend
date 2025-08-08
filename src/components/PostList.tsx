@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import {ImageOff, Heart, MessageCircle, HeartIcon} from "lucide-react";
+import {ImageOff, Heart, MessageCircle, HeartIcon, MoreVertical} from "lucide-react";
 import {
-    type Post,
+    type Post, useDeletePostMutation,
     useGetPostsQuery,
     useLikePostMutation,
-    useUnLikePostMutation
+    useUnLikePostMutation, useUpdatePostMutation
 } from "../features/post/api.ts";
 import ProfilePicture from "./ProfilePicture.tsx";
 import Typography from "./Typography.tsx";
@@ -18,6 +18,9 @@ import DialogBox from "./DialogBox.tsx";
 import {useAddCommentMutation} from "../features/comment/api.ts";
 import CommentList from "../features/comment/CommentList.tsx";
 import Profile from "../features/profile/Profile.tsx";
+import {parseHashtagsToLinks} from "../utils/hashtags.ts";
+import SecondaryButton from "./SecondaryButton.tsx";
+import TextField from "./TextField.tsx";
 
 const PostList = () => {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -25,12 +28,28 @@ const PostList = () => {
     const [cursor, setCursor] = useState<string | null>(null);
     const { data, isLoading, isFetching, isError } = useGetPostsQuery({ cursor });
     const [likePost] = useLikePostMutation();
+    const user = localStorage.getItem("user");
     const [unLikePost] = useUnLikePostMutation()
     const [addComment] = useAddCommentMutation();
+    const [deletePost] = useDeletePostMutation();
+    const [updatePost] = useUpdatePostMutation();
     const [loadingMore, setLoadingMore] = useState(false);
     const [commentData, setCommentData] = useState<{post: string, comment?: string, content: string} | null>(null)
     const [post, setPost] = useState<string | null>(null);
     const [profileId, setProfileId] = useState<string | null>(null);
+    const [more, setMore] = useState(false);
+    const [author, setAuthor] = useState("");
+    const [option, setOption] = useState<"update" | "delete" | "">("")
+    const [updatedCaption, setUpdatedCaption] = useState<string | null>(null)
+    const [postId, setPostId] = useState<string>("")
+
+    useEffect(() => {
+        if (user){
+            const parsedUser = JSON.parse(user);
+            setAuthor(parsedUser.id)
+        }
+    }, [posts, user]);
+
 
     useEffect(() => {
         if (data?.results) {
@@ -211,7 +230,43 @@ const PostList = () => {
         setCommentData(null);
     };
 
+    const handleUpdate = async () => {
+        if (updatedCaption && postId) {
+            const result = await updatePost({id: postId, caption: updatedCaption});
+            if ('error' in result) {
+                if ('error' in result) {
+                    const err = result.error;
+                    if (err && 'data' in err && typeof err.data === 'object')
+                        toast.error("Update failed: " + (err.data as any)[0]);
+                    else toast.error("Update failed: Unknown error");
+                }
+            }
+            else {
+                setMore(false)
+                setUpdatedCaption(null)
+                setOption("")
+                toast.success("Post updated successfully.");
+            }
+        }
+    }
 
+    const handleDelete = async () => {
+        if (!postId) return null
+        const result = await deletePost({id: postId})
+        if ('error' in result) {
+            if ('error' in result) {
+                const err = result.error;
+                if (err && 'data' in err && typeof err.data === 'object')
+                    toast.error("Delete failed: " + (err.data as any)[0]);
+                else toast.error("Delete failed: Unknown error");
+            }
+        }
+        else {
+            setMore(false)
+            setOption("")
+            toast.success("Post deleted successfully.");
+        }
+    }
 
     return (
         <div style={{ backgroundColor: "var(--primary-bg)", maxWidth: "90vw", minHeight: "100vh" }}>
@@ -238,7 +293,7 @@ const PostList = () => {
                     {posts.map((post, index) => (
                         <article
                             key={post.id}
-                            className=" shadow-sm overflow-hidden hover:shadow-md transition-all duration-300"
+                            className=" shadow-sm relative overflow-hidden hover:shadow-md transition-all duration-300"
                             style={{
                                 borderColor: "var(--text-tertiary)",
                                 backgroundColor: "var(--primary-bg)",
@@ -247,6 +302,16 @@ const PostList = () => {
                             }}
                         >
                             <div className="flex items-center justify-between p-4 pb-3">
+                                {decodeGlobalId(post.author.id) === author &&
+                                    <button
+                                        aria-label="Menu"
+                                        className="absolute top-4 z-100 right-0 p-2 rounded hover:bg-[var(--primary-hover)] transition-colors"
+                                        onClick={() => setMore(prevState => !prevState)}
+                                    >
+                                        <MoreVertical  size={24} color="var(--primary-text)" />
+                                    </button>
+                                }
+
                                 <div className={'flex w-full justify-between'}>
                                     <div onClick={()=> setProfileId(post.author.id)} className="flex items-center space-x-3">
                                        <ProfilePicture  className={'ml-[-15px]'} src={post.author.profilePicture}></ProfilePicture>
@@ -359,7 +424,9 @@ const PostList = () => {
                                                 style={{ color: "var(--primary-text)" }}
                                                 className="leading-relaxed"
                                             >
-                                                {post.caption}
+                                                <Typography
+                                                    dangerouslySetInnerHTML={{ __html: parseHashtagsToLinks(post.caption) }}
+                                                />
                                             </p>
                                         </div>
                                     )}
@@ -379,7 +446,21 @@ const PostList = () => {
                                     }
                                 </div>
                             </div>
+                            {more &&
+                                <div className={'flex flex-col gap-2 absolute top-15 right-0 bg-[var(--background)] p-4 rounded-2xl w-40'}>
+                                    <PrimaryButton onClick={() => {
+                                        setOption("update")
+                                        setUpdatedCaption(post?.caption)
+                                        setPostId(decodeGlobalId(post.id))
+                                    }} className={'w-full'}>Update</PrimaryButton>
+                                    <PrimaryButton onClick={() => {
+                                        setOption("delete")
+                                        setPostId(decodeGlobalId(post.id))
+                                    }} className={'w-full'}>Delete</PrimaryButton>
+                                </div>
+                            }
                         </article>
+
                     ))}
                 </div>
                 {post &&
@@ -426,6 +507,42 @@ const PostList = () => {
                         </div>
                     </div>
                 )}
+                {option === "delete" &&
+                    <div>
+                        <DialogBox style={{ width: "500px"}} onClose={() => {
+                            setOption("")
+                            setMore(false);
+                        }}>
+                            <Typography>Are you sure you want to delete this story?</Typography>
+                            <div className={'text-right '}>
+                                <div className={'flex justify-end w-full gap-2 mt-4'}>
+                                    <PrimaryButton onClick={() => {
+                                        setOption("")
+                                        setMore(false)
+                                    }} className={'h-8'}>Cancel</PrimaryButton>
+                                    <SecondaryButton onClick={handleDelete} className={'w-15'}>Delete</SecondaryButton>
+                                </div>
+                            </div>
+                        </DialogBox>
+                    </div>
+                }
+                {option === "update" && updatedCaption &&
+                    <div>
+                        <DialogBox style={{ width: "500px"}} onClose={() => {
+                            setOption("")
+                            setMore(false);
+                        }}>
+                            <TextField handleChange={(value) => setUpdatedCaption(value)} className={'mt-[-10px]'} title={"Caption"} value={updatedCaption}></TextField>
+                            <div className={'flex justify-end w-full gap-2 mt-4'}>
+                                <PrimaryButton onClick={() => {
+                                    setOption("")
+                                    setMore(false)
+                                }} className={'h-8'}>Cancel</PrimaryButton>
+                                <SecondaryButton className={'w-15'} onClick={handleUpdate}>Update</SecondaryButton>
+                            </div>
+                        </DialogBox>
+                    </div>
+                }
             </div>
 
         </div>

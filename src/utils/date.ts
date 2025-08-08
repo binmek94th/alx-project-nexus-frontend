@@ -19,3 +19,14 @@ export const formatRelativeTime = (date: Date | string): string => {
     if (months < 12) return rtf.format(-months, "month");
     return rtf.format(-years, "year");
 };
+
+
+export function formatToHour(dateString: string) {
+    const diffSeconds = (new Date(dateString).getTime() - Date.now()) / 1000;
+
+    if (diffSeconds <= 0) return "expired";
+
+    if (diffSeconds < 60) return `${Math.floor(diffSeconds)} seconds left`;
+    if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)} minutes left`;
+    return `${Math.floor(diffSeconds / 3600)} hours left`;
+}

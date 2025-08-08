@@ -3,7 +3,7 @@ import Typography from "./Typography.tsx";
 import { cn } from "../utils/utils.ts"; // if you're using `cn()` helper
 
 interface Props {
-    title: string;
+    title?: string;
     children: React.ReactNode;
     onClose: () => void;
     className?: string;
@@ -50,36 +50,38 @@ const DialogBox = ({ title, children, onClose, className, style }: Props) => {
                     textAlign: "center",
                     maxHeight: "90vh",
                     overflowY: "auto",
-                    ...style, // allow parent override
+                    ...style,
                 }}
             >
-                <Typography variant="h2">
-                    {title || "Dialog Title"}
-                </Typography>
+                {title &&
+                    <Typography variant="h2">
+                        {title}
+                    </Typography>
+                }
                 <div style={{ marginBottom: "1.5rem", color: "var(--text-tertiary)" }}>
                     {children}
                 </div>
-                <button
-                    onClick={onClose}
-                    style={{
-                        backgroundColor: "var(--primary)",
-                        color: "var(--primary-text)",
-                        border: "none",
-                        padding: "0.5rem 1.25rem",
-                        fontWeight: 600,
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                        transition: "background-color 0.3s ease",
-                    }}
-                    onMouseOver={(e) =>
-                        (e.currentTarget.style.backgroundColor = "var(--primary-hover)")
-                    }
-                    onMouseOut={(e) =>
-                        (e.currentTarget.style.backgroundColor = "var(--primary)")
-                    }
-                >
-                    Close
-                </button>
+                {/*<button*/}
+                {/*    onClick={onClose}*/}
+                {/*    style={{*/}
+                {/*        backgroundColor: "var(--primary)",*/}
+                {/*        color: "var(--primary-text)",*/}
+                {/*        border: "none",*/}
+                {/*        padding: "0.5rem 1.25rem",*/}
+                {/*        fontWeight: 600,*/}
+                {/*        borderRadius: "4px",*/}
+                {/*        cursor: "pointer",*/}
+                {/*        transition: "background-color 0.3s ease",*/}
+                {/*    }}*/}
+                {/*    onMouseOver={(e) =>*/}
+                {/*        (e.currentTarget.style.backgroundColor = "var(--primary-hover)")*/}
+                {/*    }*/}
+                {/*    onMouseOut={(e) =>*/}
+                {/*        (e.currentTarget.style.backgroundColor = "var(--primary)")*/}
+                {/*    }*/}
+                {/*>*/}
+                {/*    Close*/}
+                {/*</button>*/}
             </div>
         </div>
     );
