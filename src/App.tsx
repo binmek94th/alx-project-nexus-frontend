@@ -12,7 +12,6 @@ import Profile from "./features/profile/Profile.tsx";
 import Notification from "./features/notification/Notification.tsx";
 import {setNavigate} from "./utils/router.ts";
 import {useEffect} from "react";
-import {checkLogin} from "./utils/checkLogin.ts";
 import Search from "./features/search/Search.tsx";
 import Create from "./features/post/Create.tsx";
 import NetworkError from "./pages/NetworkError.tsx";
@@ -24,13 +23,6 @@ const App = () => {
 
     useEffect(() => {
         setNavigate(navigate);
-    }, [navigate]);
-
-    useEffect(() => {
-        const navigateNoLogin = () => {
-         if (!checkLogin()) navigate("/login");
-        }
-        navigateNoLogin();
     }, [navigate]);
 
     return (
