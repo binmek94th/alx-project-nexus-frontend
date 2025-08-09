@@ -74,7 +74,7 @@ export const postApi = baseApi.injectEndpoints({
                 formData.append("image", image);
                 formData.append("caption", caption);
                 return {
-                    url: "api/post/stories/",
+                    url: "api/post/posts/",
                     method: "POST",
                     body: formData,
                 };

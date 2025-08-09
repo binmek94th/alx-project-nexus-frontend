@@ -1,10 +1,11 @@
 import {navigateTo} from "./router.ts";
 import { showToast } from "./toastUtils.tsx";
+import {toast} from "sonner";
 
 export const handleError = (result: any) => {
     if (result.error) {
         if (result.error.status === 'FETCH_ERROR') {
-            navigateTo('/network-error');
+            toast.error('network-error, try again');
             return result;
         }
         if (result.error.status === 404) {
