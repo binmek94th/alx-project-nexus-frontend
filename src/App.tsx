@@ -27,8 +27,11 @@ const App = () => {
     }, [navigate]);
 
     useEffect(() => {
-        checkLogin()
-    }, []);
+        const navigateNoLogin = () => {
+         if (!checkLogin()) navigate("/login");
+        }
+        navigateNoLogin();
+    }, [navigate]);
 
     return (
         <div>
