@@ -16,14 +16,14 @@ export const storyApi = baseApi.injectEndpoints({
 
         getStories: build.query<Payload<Story>, void>({
             query: () => ({
-                url: `api/post/stories`,
+                url: `api/post/stories/`,
                 method: 'GET',
             }),
         }),
 
         getStory: build.query<Story, {id: string}>({
         query: ({id}) => ({
-            url: `api/post/stories/${id}`,
+            url: `api/post/stories/${id}/`,
             method: 'GET'
         }),
         }),
