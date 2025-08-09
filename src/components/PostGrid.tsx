@@ -27,6 +27,16 @@ const PostGrid = ({posts}: Props) => {
         );
     }
 
+    const getUrl = (src: string) => {
+        if (src) {
+            if (src.startsWith("http://") || src.startsWith("https://")) {
+                return src;
+            } else {
+                return (`${import.meta.env.VITE_API_URL}image/${src}`);
+            }
+        }
+    }
+
     return (
         <div className=" bg-[var(--background)] min-h-50 min-w-100 rounded-2xl">
             <div className="sticky top-0 z-10 0 border-b border-[var(--paper-custom)]">
@@ -48,7 +58,7 @@ const PostGrid = ({posts}: Props) => {
                             {post.image ? (
                                 <div className="relative w-full h-full">
                                     <img
-                                        src={`${import.meta.env.VITE_API_URL}image/${post.image}`}
+                                        src={getUrl(post.image)}
                                         alt={`Post ${post.id}`}
                                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                         loading="lazy"
