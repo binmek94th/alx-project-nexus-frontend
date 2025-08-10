@@ -1,16 +1,12 @@
-import { useState } from "react";
-import { useWebSocket } from "./useWebSocket";
 import NotificationList from "./NotificationList";
 
-const Notifications = () => {
-    const token = localStorage.getItem("access_token");
-    const wsUrl = `${import.meta.env.VITE_WEBSOCKET_URL}/notification/${token}`;
+interface Props {
+    messages: any[];
+    isConnected: boolean;
+}
 
-    const [messages, setMessages] = useState<any[]>([]);
+const Notifications = ({messages, isConnected}: Props) => {
 
-    const { isConnected } = useWebSocket(wsUrl, (msg) => {
-        setMessages((prev) => [...prev, ...(Array.isArray(msg) ? msg : [msg])]);
-    });
 
     return (
         <div className="p-4">
