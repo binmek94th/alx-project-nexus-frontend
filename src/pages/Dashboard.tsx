@@ -12,7 +12,10 @@ const Dashboard = ({newMessage}: Props) => {
 
     useEffect(() => {
         const navigateNoLogin = () => {
-            if (!checkLogin()) navigate("/login");
+            if (!checkLogin()) {
+                console.log("navigating to login")
+                navigate("/login");
+            }
         }
         navigateNoLogin();
     }, [navigate]);
