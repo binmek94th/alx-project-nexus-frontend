@@ -20,9 +20,9 @@ const Profile = ({id}: Props) => {
     const parsedUser = storedUser ? JSON.parse(storedUser) : null;
     const [dialogBox, setDialogBox] = useState("")
 
-    const userId = id ?? parsedUser?.id ?? "";
+    const userId = id ?? encodeGlobalId(parsedUser?.id) ?? "";
 
-    const { profile, loading, error } = useProfile(encodeGlobalId(userId));
+    const { profile, loading, error } = useProfile((userId));
 
     if (loading) return <Spinner />;
     if (error) {

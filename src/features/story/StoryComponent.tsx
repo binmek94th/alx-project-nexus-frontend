@@ -17,7 +17,17 @@ const StoryComponent = () => {
         return <div>Loading...</div>;
 
     if (!stories?.results?.length)
-        return <div className="text-gray-500">No stories available</div>;
+        return <div>
+            <div
+                onClick={() => setCreateStory(true)}
+                className="flex-shrink-0 cursor-pointer w-[70px] h-[70px] flex items-center justify-center
+                border-2 rounded-full border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white
+                transition-colors duration-200"
+                title="Create Story"
+            >
+                <Plus size={32} />
+            </div>
+        </div>
 
     const handleCreateStory = async (story: { image: File; caption: string }) => {
         const result = await postStory(story);
