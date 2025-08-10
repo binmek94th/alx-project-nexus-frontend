@@ -16,19 +16,6 @@ const StoryComponent = () => {
     if (isLoading)
         return <div>Loading...</div>;
 
-    if (!stories?.results?.length)
-        return <div>
-            <div
-                onClick={() => setCreateStory(true)}
-                className="flex-shrink-0 cursor-pointer w-[70px] h-[70px] flex items-center justify-center
-                border-2 rounded-full border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white
-                transition-colors duration-200"
-                title="Create Story"
-            >
-                <Plus size={32} />
-            </div>
-        </div>
-
     const handleCreateStory = async (story: { image: File; caption: string }) => {
         const result = await postStory(story);
         if ('error' in result) {
@@ -43,6 +30,26 @@ const StoryComponent = () => {
             toast.success("Story created successfully.");
         }
     };
+
+    if (!stories?.results?.length)
+        return <div>
+            <div
+                onClick={() => setCreateStory(true)}
+                className="flex-shrink-0 cursor-pointer w-[70px] h-[70px] flex items-center justify-center
+                border-2 rounded-full border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white
+                transition-colors duration-200"
+                title="Create Story"
+            >
+                <Plus size={32} />
+            </div>
+            {createStory &&
+                <DialogBox style={{ width: "600px"}} onClose={() => setCreateStory(false)}>
+                    <CreateStory onSubmit={handleCreateStory}></CreateStory>
+                </DialogBox>
+            }
+        </div>
+
+
 
     return (
         <div className="flex gap-4 overflow-x-auto p-4">
