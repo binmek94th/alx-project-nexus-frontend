@@ -9,7 +9,7 @@ import {toast} from "sonner";
 
 const StoryComponent = () => {
     const { data: stories, isLoading } = useGetStoriesQuery();
-    const [postStory] = usePostStoryMutation();
+    const [postStory, {isLoading: isLoadingCreate}] = usePostStoryMutation();
     const [story, setStory] = useState<Story | null>(null)
     const [createStory, setCreateStory] = useState(false)
 
@@ -28,6 +28,7 @@ const StoryComponent = () => {
         }
         else {
             toast.success("Story created successfully.");
+            setCreateStory(false)
         }
     };
 
@@ -86,7 +87,7 @@ const StoryComponent = () => {
             }
             {createStory &&
             <DialogBox style={{ width: "600px"}} onClose={() => setCreateStory(false)}>
-                <CreateStory onSubmit={handleCreateStory}></CreateStory>
+                <CreateStory onSubmit={handleCreateStory} isLoading={isLoadingCreate}></CreateStory>
             </DialogBox>
             }
         </div>
